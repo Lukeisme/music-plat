@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>player</title>
+    <link rel="stylesheet" type="text/css" href="css/player.css">
+    <script type="text/javascript" src="http://g.tbcdn.cn/kissy/k/1.4.3/seed.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <aside class="music-list">
+            <ul class="m-list"></ul>
+        </aside>
+        <button class="show-list">&gt</button>
+
+        <button class="show-type">&lt</button>
+        <aside class="type-wrap">
+            <nav class="type-nav">
+                <a href="javascript:void(0)"><span>华语</span><span class="active">华语</span></a>
+                <a href="javascript:void(0)"><span>欧美</span><span class="active">欧美</span></a>
+                <a href="javascript:void(0)"><span>日韩</span><span class="active">日韩</span></a>
+                <a href="javascript:void(0)"><span>排行榜</span><span class="active">排行榜</span></a>
+            </nav>
+            <ul class="t-section">
+                <li class="t-chinese">
+                   <div class="tl-head">
+                       <h2>推荐</h2>
+                       <a href="" class="more">更多</a>
+                   </div>
+                    <ol class="t-list">
+                        
+                    </ol>
+                </li>
+                <li class="t-western">TOP 10</li>
+                <li class="t-jk">TOP 10</li>
+                <li class="t-rank">TOP 10</li>
+            </ul>
+        </aside>
+
+        <section class="player">
+            <span class="gutter">
+	 	        <span class = "loading"></span>
+            <span class="handler"></span>
+            </span>
+            <span class="volume">
+	 	        <span class = "volIcon"></span>
+            <span class="valBar"></span>
+            </span>
+            <div class="plr-img">
+                <div class="rotate-img"></div>
+                <div class="musicInfo">
+                    <p class="p-info"><a>拥抱</a></p>
+                    <p class="p-info"><a>五月天</a></p>
+                    <p class="p-info"><a>诺亚方舟世界巡回演唱会</a></p>
+                </div>
+            </div>
+            <div class="search">            
+                <div class="search-bar">
+                    <input type="text" placeholder="歌曲/歌手/专辑">
+                    <button></button>
+                </div>
+            </div>
+            <div class="p-panel">
+                <button class="toggle"></button>
+                <div class="otherBtn">
+                    <button class="forward"></button>
+                    <button class="backward"></button>
+                    <button class="next"></button>
+                    <button class="pre"></button>        
+                </div>
+            </div>
+            
+            <audio>
+                <source></source>
+            </audio>
+        </section>
+
+    </div>
+
+    <script type="text/javascript">
+        KISSY.config({
+            combine: true,
+            packages: {
+                player: {
+                    base: "src",
+                    combine: false
+                }
+            },
+            modules: {
+                "player": {
+                    require: ["node", "anim"]
+                },
+                "player/tpl/mListItem-xtpl": {
+                    require: ['xtemplate'],
+                    ignorePackageNameInUri: true
+                },
+                "player/tpl/tListItem-xtpl": {
+                    require: ['xtemplate'],
+                    ignorePackageNameInUri: true
+                }
+            }
+        });
+
+        KISSY.ready(function () {
+            KISSY.use('player', function (S, Player) {
+                var P = new Player('.player');
+                P.init();
+            })
+        })
+    </script>
+</body>
+
+</html>

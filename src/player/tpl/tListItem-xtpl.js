@@ -14,25 +14,22 @@ KISSY.add(function (S, require, exports, module) {
                 getPropertyUtil = utils.getProperty,
                 runInlineCommandUtil = utils.runInlineCommand,
                 getPropertyOrRunCommandUtil = utils.getPropertyOrRunCommand;
-            buffer += '<li class="list-item">\r\n\t\t\t<a href="jacascript:void(0)" class="m-title">';
+            buffer += '<li>\r\n    <a class="t-song" title="歌曲" href="#">';
             var id0 = getPropertyOrRunCommandUtil(engine, scope, {}, "title", 0, 2);
             buffer += renderOutputUtil(id0, true);
-            buffer += '</a>\r\n\t\t\t<a href="jacascript:void(0)" class="m-artist">';
+            buffer += '</a>\r\n    <a class="t-singer" title="歌手" href="#">';
             var id1 = getPropertyOrRunCommandUtil(engine, scope, {}, "artist", 0, 3);
             buffer += renderOutputUtil(id1, true);
-            buffer += '</a>\r\n\t\t\t<a href="jacascript:void(0)" class="m-album">';
-            var id2 = getPropertyOrRunCommandUtil(engine, scope, {}, "album", 0, 4);
+            buffer += '</a>\r\n    <span class="t-control">\r\n        <span class="add-plist"></span>\r\n        <span class="play-now"></span>\r\n        <a class="download" href="';
+            var id2 = getPropertyOrRunCommandUtil(engine, scope, {}, "src", 0, 7);
             buffer += renderOutputUtil(id2, true);
-            buffer += '</a>\r\n            <span href="jacascript:void(0)" class="m-operate">\r\n                <a class="m-download" href="';
-            var id3 = getPropertyOrRunCommandUtil(engine, scope, {}, "src", 0, 6);
+            buffer += '" download="';
+            var id3 = getPropertyOrRunCommandUtil(engine, scope, {}, "artist", 0, 7);
             buffer += renderOutputUtil(id3, true);
-            buffer += '" download = "';
-            var id4 = getPropertyOrRunCommandUtil(engine, scope, {}, "artist", 0, 6);
-            buffer += renderOutputUtil(id4, true);
             buffer += '-';
-            var id5 = getPropertyOrRunCommandUtil(engine, scope, {}, "title", 0, 6);
-            buffer += renderOutputUtil(id5, true);
-            buffer += '"></a>\r\n                <a class="m-delete"></a>\r\n            </span>\r\n</li>';
+            var id4 = getPropertyOrRunCommandUtil(engine, scope, {}, "title", 0, 7);
+            buffer += renderOutputUtil(id4, true);
+            buffer += '"></a>\r\n    </span>\r\n</li>';
             return buffer;
         };
 });
