@@ -236,6 +236,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         listEl.delegate('click', '.m-list .list-item', function (ev) {
             self.playOther($(ev.currentTarget).index());
             $('.toggle').css('background-position', '-264px -3px');
+            ev.halt();
         });
 
         listEl.delegate('click', '.m-operate .m-delete', function (ev) {
@@ -339,6 +340,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
             var t = $(ev.currentTarget);
             self.addToPlaylist('chinese', t.parent().parent().index());
             self.playOther(self.mList.length - 1);
+            $('.toggle').css('background-position', '-264px -3px');
             ev.halt();
         });
 
