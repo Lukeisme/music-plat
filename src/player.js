@@ -271,6 +271,40 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
 
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
     }
+    
+    Player.prototype.mkTypeList = function (listType) {
+        var container = $('.t-'+listType+' .t-list'),
+            tempList = [],
+            d = this.musicData[listType],
+            listStr = '';
+        
+        for (var i = 0; i < d.length; i++) {
+            tempList.push(new XTemplate(TypeTpl).render(d[i]));
+        };
+        listStr = tempList.join('\n');
+        container.append(listStr);
+
+        container.delegate('click', '.t-list .add-plist', function (ev) {
+            var t = $(ev.currentTarget);
+            self.addToPlaylist('chinese', t.parent().parent().index());
+            ev.halt();
+        });
+        container.delegate('click', '.t-list .play-now', function (ev) {
+            var t = $(ev.currentTarget);
+            self.addToPlaylist('chinese', t.parent().parent().index());
+            self.playOther(self.mList.length - 1);
+            $('.toggle').css('background-position', '-264px -3px');
+            ev.halt();
+        });
+        container.delegate('click', '.t-singer', function(ev){
+            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            ev.halt();
+        });
+        container.delegate('click', '.t-song', function(ev){
+            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            ev.halt();
+        });
+    }
 
     Player.prototype.initTeyeWrap = function (data) {
         var self = this,
@@ -278,44 +312,13 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             navItem = nav.all('a'),
             typeSection = $('.t-section'),
             typePage = $('.t-section>li'),
-            cListEl = $('.t-chinese .t-list'),
             current = 1,
             isAnimating = false,
-            aCount = 0,
-            i = 0,
-            chineseList = [],
-            westernList = [],
-            jkList = [],
-            rankList = [],
-            listStr = '';
-
-        for (; i < data.chinese.length; i++) {
-            chineseList.push(new XTemplate(TypeTpl).render(data.chinese[i]));
-        };
-        listStr = chineseList.join('\n');
-        cListEl.append(listStr);
-
-        cListEl.delegate('click', '.t-list .add-plist', function (ev) {
-            var t = $(ev.currentTarget);
-            self.addToPlaylist('chinese', t.parent().parent().index());
-            ev.halt();
-        });
-        cListEl.delegate('click', '.t-list .play-now', function (ev) {
-            var t = $(ev.currentTarget);
-            self.addToPlaylist('chinese', t.parent().parent().index());
-            self.playOther(self.mList.length - 1);
-            $('.toggle').css('background-position', '-264px -3px');
-            ev.halt();
-        });
-        cListEl.delegate('click', '.t-singer', function(ev){
-            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
-            ev.halt();
-        });
-        cListEl.delegate('click', '.t-song', function(ev){
-            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
-            ev.halt();
-        });
-        
+            aCount = 0;
+        this.mkTypeList('chinese');
+        this.mkTypeList('western');
+        this.mkTypeList('jk');
+        this.mkTypeList('rank');
         
         $(typePage[current - 1]).css({
             'opacity': 1,
@@ -384,6 +387,26 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
                 isAnimating = true;
             }
         });
+        
+        $('.t-chinese .more').on('click', function(){
+            new IO({
+                type:"get",
+                url: 'get-more.js',
+                data: {
+                    type: "chinese",
+                    index: "1"
+                },
+                success: function(data){
+                    $('.t-chinese .t-list li').remove();
+                    self.musicData.chinese = data;
+                    self.mkTypeList('chinese');
+                },
+                error: function(m, io){
+                    console.log(m);
+                },
+                dataType: "json"
+            });
+        });
 
     }
 
@@ -396,7 +419,6 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             success:function(data){
                 var elStr = '';
                 self.lrc = data;
-                console.log(data);
                 for(var i = 0; i < self.lrc.length; i++){
                     elStr += '<p class="line" data-index = "'+i+'">'+self.lrc[i].text+'</p>'
                 }
@@ -419,13 +441,39 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
 
     Player.prototype.searchHandler = function () {
         var searchBar = $('.search-bar'),
-            searchInput = $('.search-bar>input');
+            searchInput = $('.search-bar>input'),
+            searchBtn = $('.search-bar>button'),
+            hint = $('.search-hint'),
+            detail = $('.detail-info');
 
         searchInput.on('focusin', function () {
             searchBar.css('box-shadow', '0 0 6px');
         });
         searchInput.on('focusout', function () {
             searchBar.css('box-shadow', 'none');
+            hint.css('visibility', 'hidden');
+        });
+        searchInput.on('valuechange', function (ev) {
+            hint.css('visibility', 'visible');
+            console.log(ev.prevVal+','+ev.newVal);
+        });
+        
+        searchBtn.on('click', function(){
+            var key = searchInput.val();
+            new IO({
+                type:"get",
+                url: "music-data.js",
+                data: {
+                    "key":key 
+                },
+                success: function(data){
+                    detail.html(data);
+                },
+                error: function(m, io){
+                    console.log(m);
+                },
+                dataType: "json"
+            });
         });
     }
 
