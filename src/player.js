@@ -1,4 +1,4 @@
-KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
+KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
     var $ = S.all;
 
     function Player(container, options) {
@@ -6,73 +6,9 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         this.el = $(container);
         this.audio = this.el.one('audio')[0];
         this.animImg = $('.rotate-img');
-        this.musicData = {
-            chinese: [{
-                title: '传奇',
-                artist: '王菲',
-                album: '传奇',
-                src: 'resource/music/传奇.mp3',
-                img: 'resource/img/fei.jpg'
-        }, {
-                title: '拥抱',
-                artist: '五月天',
-                album: '诺亚方舟世界巡回演唱会',
-                src: 'resource/music/拥抱.mp3',
-                img: 'resource/img/mayday.jpg'
-        }, {
-                title: '愚人的国度',
-                artist: '孙燕姿',
-                album: '是时候',
-                src: 'resource/music/愚人的国度.mp3',
-                img: 'resource/img/yanzi.jpg'
-        }, {
-                title: '失忆蝴蝶',
-                artist: '陈奕迅',
-                album: 'The key',
-                src: 'resource/music/失忆蝴蝶.mp3',
-                img: 'resource/img/eason.jpg'
-        }, {
-                title: 'Outlaws Of Love',
-                artist: 'Adam',
-                album: 'Trespass',
-                src: 'resource/music/Outlaws Of Love.mp3',
-                img: 'resource/img/adam.jpg'
-        }, {
-                title: '传奇',
-                artist: '王菲',
-                album: '传奇',
-                src: 'resource/music/传奇.mp3',
-                img: 'resource/img/fei.jpg'
-        }, {
-                title: '拥抱',
-                artist: '五月天',
-                album: '诺亚方舟世界巡回演唱会',
-                src: 'resource/music/拥抱.mp3',
-                img: 'resource/img/mayday.jpg'
-        }, {
-                title: '愚人的国度',
-                artist: '孙燕姿',
-                album: '是时候',
-                src: 'resource/music/愚人的国度.mp3',
-                img: 'resource/img/yanzi.jpg'
-        }, {
-                title: '失忆蝴蝶',
-                artist: '陈奕迅',
-                album: 'The key',
-                src: 'resource/music/失忆蝴蝶.mp3',
-                img: 'resource/img/eason.jpg'
-        }, {
-                title: 'Outlaws Of Love',
-                artist: 'Adam',
-                album: 'Trespass',
-                src: 'resource/music/Outlaws Of Love.mp3',
-                img: 'resource/img/adam.jpg'
-        }],
-            western: [],
-            jk: [],
-            rank: []
-        }
+        this.musicData = {};
         this.mList = [];
+        this.lrc = [];
         this.defaltImg = 'resource/img/default.jpg';
         this.currentPlay = 0;
         this.animStyle = {
@@ -95,18 +31,18 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
             audioSrc,
             animImgSrc;
         this.musicList();
-        if(this.mList.length === 0){
+        if (this.mList.length === 0) {
             audioSrc = '';
             animImgSrc = this.defaltImg;
-        }else{
+        } else {
             $($('.p-info a')[0]).html(this.mList[this.currentPlay].title);
             $($('.p-info a')[1]).html(this.mList[this.currentPlay].artist);
-            $($('.p-info a')[2]).html(this.mList[this.currentPlay].album);        
+            $($('.p-info a')[2]).html(this.mList[this.currentPlay].album);
             audioSrc = this.mList[this.currentPlay].src;
             animImgSrc = this.mList[this.currentPlay].img;
         }
         $(this.audio).attr('src', audioSrc);
-        this.initTeyeWrap();
+//        this.initTeyeWrap();
         this.searchHandler();
         this.initPanel();
         this.animImg.css('background-image', 'url("' + animImgSrc + '")');
@@ -151,21 +87,49 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
                 typeWrap.css('transform', 'translate3d(-300px, 0, 0)');
                 $(this).css({
                     width: '200px',
-//                    border: '1px solid'
+                    border: '1px solid'
                 }).html('到处看看 &gt');
                 typeShown = true;
             };
         });
 
         $(self.audio).on('timeupdate', function () {
+            var i = 2;
+
             handPos = this.currentTime / this.duration * 100;
             handler.css('left', handPos - 1 + '%');
             if (this.ended)
                 self.playOther(self.currentPlay + 1);
+
+            if (this.currentTime < self.lrc[2].timeline)
+                return;
+            while (!(this.currentTime >= self.lrc[i].timeline && this.currentTime < self.lrc[i + 1].timeline)) {
+                i++;
+                if (i >= self.lrc.length - 1)
+                    return;
+            }
+            $('.lrc-text').css({
+                transform: 'translate3D(0, ' + (-18 * (i - 1)) + 'px, 0)'
+            });
+            
         });
 
-        $(self.audio).on('progress', function () {});
-
+        this.handleDetail();
+        
+        new IO({
+            type:"get",
+            url: 'music-data.js',
+            success: function(data){
+                self.musicData = data;
+                self.initTeyeWrap(data);
+            },
+            error: function(m, io){
+                console.log(m);
+            },
+            dataType: "json"
+        });
+        
+        this.makeLrc();
     };
 
     Player.prototype.initPanel = function () {
@@ -221,7 +185,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         list = JSON.parse(localStorage.getItem('playlist'));
         return list || [];
     }
-    
+
     Player.prototype.musicList = function () {
         this.mList = this.getPlaylist();
         var listEl = $('.m-list'),
@@ -299,7 +263,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         $($('.p-info a')[0]).html(this.mList[this.currentPlay].title);
         $($('.p-info a')[1]).html(this.mList[this.currentPlay].artist);
         $($('.p-info a')[2]).html(this.mList[this.currentPlay].album);
-        
+
         if (this.animCD.isPaused())
             this.animCD.resume();
         if (!this.animCD.isRunning())
@@ -308,7 +272,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
     }
 
-    Player.prototype.initTeyeWrap = function () {
+    Player.prototype.initTeyeWrap = function (data) {
         var self = this,
             nav = $('.type-nav'),
             navItem = nav.all('a'),
@@ -325,8 +289,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
             rankList = [],
             listStr = '';
 
-        for (; i < this.musicData.chinese.length; i++) {
-            chineseList.push(new XTemplate(TypeTpl).render(this.musicData.chinese[i]));
+        for (; i < data.chinese.length; i++) {
+            chineseList.push(new XTemplate(TypeTpl).render(data.chinese[i]));
         };
         listStr = chineseList.join('\n');
         cListEl.append(listStr);
@@ -343,7 +307,16 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
             $('.toggle').css('background-position', '-264px -3px');
             ev.halt();
         });
-
+        cListEl.delegate('click', '.t-singer', function(ev){
+            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            ev.halt();
+        });
+        cListEl.delegate('click', '.t-song', function(ev){
+            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            ev.halt();
+        });
+        
+        
         $(typePage[current - 1]).css({
             'opacity': 1,
             'z-index': 150
@@ -367,10 +340,11 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
                 },
                 navInNext = {
                     transform: 'translateX(0)',
-                    'z-index': 150
+                    'z-index': 150,
+                    opacity: 1
                 },
                 animOutCfg = {
-                    duration: 1.2,
+                    duration: 1,
                     easing: 'cubic-bezier(0.7, 0, 0.3, 1)',
                     complete: function () {
                         --aCount;
@@ -382,7 +356,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
                     useTransiton: true
                 },
                 animInCfg = {
-                    duration: 1.2,
+                    duration: 1,
                     easing: 'cubic-bezier(0.7, 0, 0.3, 1)',
                     complete: function () {
                         current = index;
@@ -403,8 +377,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
                 ++aCount;
 
                 $(typePage[index - 1]).css({
-                    transform: 'translateX(-100%)',
-                    opacity: 1,
+                    transform: 'translateX(-100%)'
                 }).animate(navInNext, animInCfg);
                 ++aCount;
 
@@ -414,6 +387,28 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
 
     }
 
+    Player.prototype.makeLrc = function () {
+        var self = this;
+        new IO({
+            type:"get",
+            url: 'lyric-data.js',
+            dataType: "json",
+            success:function(data){
+                var elStr = '';
+                self.lrc = data;
+                console.log(data);
+                for(var i = 0; i < self.lrc.length; i++){
+                    elStr += '<p class="line" data-index = "'+i+'">'+self.lrc[i].text+'</p>'
+                }
+                $('.lyric .lrc-text').append(elStr);
+            },
+            error: function(m, io){
+                console.log(m);
+            }
+        })
+        
+    }
+    
     Player.prototype.addToPlaylist = function (type, index) {
         var data = this.musicData[type][index];
         this.mList.push(data);
@@ -434,7 +429,14 @@ KISSY.add(function (S, Node, Anim, XTemplate, ListTpl, TypeTpl) {
         });
     }
 
+    Player.prototype.handleDetail = function () {
+        var mainEl = $('.detail-info');
+        $('.close').on('click', function(){
+            mainEl.css('transform', 'translate3D(0, 0, 0)');
+        });
+    };
+    
     return Player;
 }, {
-    requires: ['node', 'anim', 'xtemplate', 'player/tpl/mListItem-xtpl', 'player/tpl/tListItem-xtpl']
+    requires: ['node', 'anim', 'xtemplate', 'io', 'player/tpl/mListItem-xtpl', 'player/tpl/tListItem-xtpl']
 });
