@@ -448,6 +448,7 @@ a {
     width: 660px;
     padding: 20px;
     margin: 0 auto;
+    overflow: auto;
     background-color: #666;
     z-index: 190;
     -webkit-transform-origin: 0 0;
@@ -470,9 +471,10 @@ a {
     color: #666;
 }
 .default-info {
-    display: none;
+/*    display: none;*/
 }
 .lrc-text {
+    display: none;
     -webkit-transition: transform 0.1s ease;
     -o-transition: transform 0.1s ease;
     transition: transform 0.1s ease;
@@ -500,4 +502,7 @@ a {
     background-color: #FFF;
     color: #666;
     visibility: hidden;
+}
+
+.text-body {
 }

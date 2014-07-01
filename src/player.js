@@ -274,6 +274,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
     
     Player.prototype.mkTypeList = function (listType) {
         var container = $('.t-'+listType+' .t-list'),
+            self = this,
             tempList = [],
             d = this.musicData[listType],
             listStr = '';
@@ -444,7 +445,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             searchInput = $('.search-bar>input'),
             searchBtn = $('.search-bar>button'),
             hint = $('.search-hint'),
-            detail = $('.detail-info');
+            textBody = $('.text-body');
 
         searchInput.on('focusin', function () {
             searchBar.css('box-shadow', '0 0 6px');
@@ -467,7 +468,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
                     "key":key 
                 },
                 success: function(data){
-                    detail.html(data);
+                    textBody.html(JSON.stringify(data));
+                    $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
                 },
                 error: function(m, io){
                     console.log(m);
