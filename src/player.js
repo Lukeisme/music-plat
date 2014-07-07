@@ -165,6 +165,10 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 node.css('top', posTop);
             }
         });
+        
+        $(document).delegate('click', '.download', function(ev){
+            
+        });
     };
 
     Player.prototype.handleTimeUpdate = function (self) {
@@ -381,6 +385,20 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
 
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
         this.makeLrc();
+        
+        var idData = this.mList[this.currentPlay].id;
+        new IO({
+            type: "post",
+            url: 'lyric-datas.js',
+            //            url: 'updateListeningHistory',
+            data: {
+                id: idData,
+                type: 'listen'
+            },
+            error: function (m, io) {
+                console.log(m);
+            }
+        });
     }
 
     Player.prototype.mkTypeList = function (listType) {
@@ -408,6 +426,9 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             $('.toggle').css('background-position', '-264px -3px');
             ev.halt();
         });
+        container.delegate('click', '.t-list .download', function (ev) {
+            self.logDownload($(ev.currentTarget).parent().parent().index(), listType);
+        });
         container.delegate('click', '.t-singer', function (ev) {
             $('.search-result').css('display', 'none');
             $('.text-body').css('display', 'block');
@@ -416,6 +437,27 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         });
     }
 
+    Player.prototype.logDownload = function(index, type){
+        var id;
+        if(arguments.length === 2){
+            id = this.musicData[type][index].id;
+        }else if(arguments.length === 1){
+            id = this.mList[index].id;
+        }
+        new IO({
+            type: "post",
+            url: 'lyric-datas.js',
+            //            url: 'updateListeningHistory',
+            data: {
+                id: id,
+                type: 'download'
+            },
+            error: function (m, io) {
+                console.log(m);
+            }
+        });
+    }
+    
     Player.prototype.initTeyeWrap = function (data) {
         var self = this,
             nav = $('.type-nav'),
@@ -547,7 +589,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 $('.lyric').css('display', 'none');
                 $('.default-info').css('display', 'block');
             }
-        })
+        });
 
     }
 
