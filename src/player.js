@@ -341,6 +341,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         });
 
         listEl.delegate('click', '.m-operate .m-download', function (ev) {
+            self.logDownload($(ev.currentTarget).parent().parent().index());
             ev.stopPropagation();
         });
     }
