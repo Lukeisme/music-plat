@@ -156,8 +156,14 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             var node = $(ev.drag.userConfig.node);
             if(node.hasClass('handler'))
                 node.css('left', ev.pageX-15);
-            if(node.hasClass('vol-handler'))
-                node.css('top', ev.pageY - node.parent().offset().top - 5);
+            if(node.hasClass('vol-handler')){
+                var posTop = ev.pageY - node.parent().offset().top - 5;
+                if(posTop < 0)
+                    posTop = 0;
+                if(posTop > 100)
+                    posTop = 100;
+                node.css('top', posTop);
+            }
         });
     };
 
@@ -374,7 +380,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             this.animCD.run();
 
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
-        }
+        this.makeLrc();
+    }
 
     Player.prototype.mkTypeList = function (listType) {
         var container = $('.t-' + listType + ' .t-list'),
@@ -515,9 +522,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
     }
 
     Player.prototype.makeLrc = function () {
-        var self = this,
-            idData = this.mList[this.currentPlay].id;
-        console.log(idData);
+        var self = this;
+        var idData = this.mList[this.currentPlay].id;
         new IO({
             type: "get",
             url: 'lyric-datas.js',
@@ -532,6 +538,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 for (var i = 0; i < self.lrc.length; i++) {
                     elStr += '<p class="line" data-index = "' + i + '">' + self.lrc[i].text + '</p>';
                 }
+                $('.lyric .lrc-text p').remove();
                 $('.lyric .lrc-text').append(elStr);
                 $('.lyric').css('display', 'block');
                 $('.default-info').css('display', 'none');
