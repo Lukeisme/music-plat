@@ -1,4 +1,4 @@
-KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
+KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
     var $ = S.all;
 
     function Player(container, options) {
@@ -7,6 +7,10 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
         this.audio = this.el.one('audio')[0];
         this.volume = 0.5;
         this.animImg = $('.rotate-img');
+        this.userLog = {
+            listenTime: 0,
+            downloadTime: 0
+        };
         this.musicData = {};
         this.mList = [];
         this.lrc = [];
@@ -95,6 +99,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
         $(self.audio).on('timeupdate', this.handleTimeUpdate(self));
 
         gutter.on('mouseenter', function (ev) {
+            if(self.audio.currentTime === 0)
+                return;
             timeInfo.css({
                 top: ev.pageY + 10,
                 left: ev.pageX + 10,
@@ -113,6 +119,11 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
                 display: 'none'
             });
             gutter.detach('mousemove');
+        });
+        gutter.on('click', function(ev){
+            if(self.audio.currentTime === undefined)
+                return;
+            self.audio.currentTime = (Math.floor(ev.pageX/$(this).width()*1000+3)/1000)*Math.floor(self.audio.duration);
         });
 
         this.handleDetail();
@@ -134,6 +145,20 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
         this.handleVol();
         
         this.makeLrc();
+        
+        new dd.Draggable({
+            'node':'.handler',
+        });
+        new dd.Draggable({
+            'node':'.vol-handler'
+        });
+        dd.DDM.on('drag', function(ev){
+            var node = $(ev.drag.userConfig.node);
+            if(node.hasClass('handler'))
+                node.css('left', ev.pageX-15);
+            if(node.hasClass('vol-handler'))
+                node.css('top', ev.pageY - node.parent().offset().top - 5);
+        });
     };
 
     Player.prototype.handleTimeUpdate = function (self) {
@@ -220,9 +245,20 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
 
     Player.prototype.handleVol = function () {
         var self = this,
+            volEl = $('.volume'),
             volIcon = $('.volIcon'),
             volBar = $('.volBar'),
+            barWrap = $('.barWrap'),
             volHandler = $('.vol-handler');
+        
+        volIcon.on('mouseenter', function (ev){
+            barWrap.css('transform', 'rotateX(0)');
+            ev.halt();
+        });
+        volEl.on('mouseleave', function (ev){
+            barWrap.css('transform', 'rotateX(90deg)');
+            ev.halt();
+        });
         
         volIcon.on('click', function(ev){
             $(this).toggleClass('mute');
@@ -245,7 +281,10 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             else if(v > 1)
                 v = 1;
             self.audio.volume = self.volume = 1-v;
-            console.log(self.audio.volume);
+            if(self.audio.volume === 0)
+                volIcon.addClass('mute');
+            else
+                volIcon.removeClass('mute');
         });
     }
     
@@ -335,7 +374,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             this.animCD.run();
 
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
-    }
+        }
 
     Player.prototype.mkTypeList = function (listType) {
         var container = $('.t-' + listType + ' .t-list'),
@@ -368,10 +407,6 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
             $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
             ev.halt();
         });
-//        container.delegate('click', '.t-song', function (ev) {
-//            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
-//            ev.halt();
-//        });
     }
 
     Player.prototype.initTeyeWrap = function (data) {
@@ -481,7 +516,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
 
     Player.prototype.makeLrc = function () {
         var self = this,
-            idData = self.mList[self.currentPlay].id;
+            idData = this.mList[this.currentPlay].id;
         console.log(idData);
         new IO({
             type: "get",
@@ -500,7 +535,6 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
                 $('.lyric .lrc-text').append(elStr);
                 $('.lyric').css('display', 'block');
                 $('.default-info').css('display', 'none');
-                console.log($('.default-info'));
             },
             error: function (m, io) {
                 $('.lyric').css('display', 'none');
@@ -630,5 +664,5 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, ListTpl, TypeTpl) {
 
     return Player;
 }, {
-    requires: ['node', 'anim', 'xtemplate', 'io', 'player/tpl/mListItem-xtpl', 'player/tpl/tListItem-xtpl']
+    requires: ['node', 'anim', 'xtemplate', 'io', 'dd', 'player/tpl/mListItem-xtpl', 'player/tpl/tListItem-xtpl']
 });

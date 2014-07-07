@@ -509,8 +509,8 @@ a {
 .close {
     display: block;
     position: absolute;
-    right: 0;
-    top: 0px;
+    right: 10px;
+    top: 30px;
     width: 20px;
     height: 20px;
     background-color: black;
@@ -533,6 +533,7 @@ a {
 }
 
 .text-body {
+    margin: 30px;
 }
 
 .time-info {
@@ -557,19 +558,23 @@ a {
     height: 30px;
     bottom: 0;
     background-image: url(../resource/img/player.png);
-    background-position: -195px -135px;
-    cursor: pointer;
-}
-.volIcon:hover{
     background-position: -195px -167px;
+    cursor: pointer;
 }
 
 .volIcon.mute{
-    background-position: -158px -195px;
-}
-.volIcon.mute:hover{
     background-position: -195px -195px;
 }
+
+.barWrap{
+    transform-origin: bottom;
+    transform: rotateX(90deg);
+    -webkit-transition: transform 0.3s ease;
+    -o-transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
+    height: 120px;
+}
+
 .volBar {
     position: relative;
     top: 10px;
@@ -586,7 +591,6 @@ a {
     width: 30px;
     bottom: 30px;
     right: 100px;
-    background-color: black;
 }
 
 .vol-handler {
