@@ -136,8 +136,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
 
         new IO({
             type: "get",
-            //            url: "music-data.js",
-            url: "displayTop10Songs",
+            url: "music-data.js",
+            //            url: "displayTop10Songs",
             success: function (data) {
                 self.musicData = data;
                 self.initTeyeWrap(data);
@@ -391,8 +391,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         var idData = this.mList[this.currentPlay].id;
         new IO({
             type: "post",
-            //            url: 'lyric-datas.js',
-            url: 'sendListeningHistory',
+            url: 'lyric-datas.js',
+            //            url: 'sendListeningHistory',
             data: {
                 id: idData,
                 type: 'listen'
@@ -451,8 +451,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         }
         new IO({
             type: "post",
-            //            url: 'lyric-datas.js',
-            url: 'updateListeningHistory',
+            url: 'lyric-datas.js',
+            //            url: 'updateListeningHistory',
             data: {
                 id: id,
                 type: 'download'
@@ -583,8 +583,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         function getOtherPage(listType, index) {
             new IO({
                 type: "get",
-                //                url: 'get-more.js',
-                url: 'displayMoreSongs',
+                url: 'get-more.js',
+                //                url: 'displayMoreSongs',
                 data: {
                     type: listType,
                     index: index
@@ -622,8 +622,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         return function () {
             new IO({
                 type: "get",
-                //                url: 'get-more.js',
-                url: 'displayMoreSongs',
+                url: 'get-more.js',
+                //                url: 'displayMoreSongs',
                 data: {
                     type: listType,
                     index: "1"
@@ -653,8 +653,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         var idData = this.mList[this.currentPlay].id;
         new IO({
             type: "get",
-            //            url: 'lyric-datas.js',
-            url: 'getLyric',
+            url: 'lyric-datas.js',
+            //            url: 'getLyric',
             data: {
                 id: idData
             },
@@ -713,8 +713,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 return;
             new IO({
                 type: "get",
-                //                url: "fuzzy.js",
-                url: "fuzzySearch",
+                url: "fuzzy.js",
+                //                url: "fuzzySearch",
                 data: {
                     "searchKey": key
                 },
@@ -749,19 +749,20 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 dataType: "json"
             });
         });
-        $('.search-hint').delegate('click', '.search-hint ul li', function(ev){
-                $('.search input').val($(ev.currentTarget).one('.s-info').text());
-                searchKeyWord();
-                ev.halt();
+        $('.search-hint').delegate('click', '.search-hint ul li', function (ev) {
+            $('.search input').val($(ev.currentTarget).one('.s-info').text());
+            searchKeyWord();
+            ev.halt();
         });
+
         function searchKeyWord() {
             var key = searchInput.val();
             if (key === '')
                 return;
             new IO({
                 type: "get",
-                //                url: "get-more.js",
-                url: "accurateSearch",
+                url: "get-more.js",
+                //                url: "accurateSearch",
                 data: {
                     "searchKey": key
                 },
@@ -783,7 +784,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 dataType: "json"
             });
         }
-        
+
         $('.search-result>ul').delegate('click', '.search-result .add-plist', function (ev) {
             var t = $(ev.currentTarget);
 
@@ -812,7 +813,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             switch (ev.keyCode) {
             case 13:
                 /*enter*/
-                if($('.search-hint .selected').length !== 0)
+                if ($('.search-hint .selected').length !== 0)
                     $('.search input').val($(hintItem[self.hintIndex]).one('.s-info').text());
                 searchKeyWord();
                 ev.halt();
