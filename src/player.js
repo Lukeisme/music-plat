@@ -7,10 +7,13 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         this.audio = this.el.one('audio')[0];
         this.volume = 0.5;
         this.animImg = $('.rotate-img');
-        this.userLog = {
-            listenTime: 0,
-            downloadTime: 0
+        this.pageIndex = {
+            chinese: 0,
+            western: 0,
+            jk: 0,
+            rank: 0
         };
+        this.hintIndex = -1;
         this.musicData = {};
         this.mList = [];
         this.lrc = [];
@@ -29,6 +32,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             }
         };
         this.animCD = new Anim(this.animImg, this.animStyle, this.animCfg);
+        this.typeListenTimes = 0;
     }
 
     Player.prototype.init = function () {
@@ -81,6 +85,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         showTypeBtn.on('click', function () {
             if (typeShown) {
                 typeWrap.css('transform', 'translate3d(300px, 0, 0)');
+                $('.volume').css('right', '100px');
                 $(this).css({
                     width: '40px',
                     border: 'none'
@@ -88,6 +93,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 typeShown = false;
             } else {
                 typeWrap.css('transform', 'translate3d(-300px, 0, 0)');
+                $('.volume').css('right', '300px');
                 $(this).css({
                     width: '200px',
                     border: '1px solid'
@@ -99,7 +105,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         $(self.audio).on('timeupdate', this.handleTimeUpdate(self));
 
         gutter.on('mouseenter', function (ev) {
-            if(self.audio.currentTime === 0)
+            if (self.audio.currentTime === 0)
                 return;
             timeInfo.css({
                 top: ev.pageY + 10,
@@ -120,18 +126,18 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             });
             gutter.detach('mousemove');
         });
-        gutter.on('click', function(ev){
-            if(self.audio.currentTime === undefined)
+        gutter.on('click', function (ev) {
+            if (self.audio.currentTime === undefined)
                 return;
-            self.audio.currentTime = (Math.floor(ev.pageX/$(this).width()*1000+3)/1000)*Math.floor(self.audio.duration);
+            self.audio.currentTime = (Math.floor(ev.pageX / $(this).width() * 1000 + 3) / 1000) * Math.floor(self.audio.duration);
         });
 
         this.handleDetail();
 
         new IO({
             type: "get",
-            url: "music-data.js",
-            //            url: "displayTop10Songs",
+            //            url: "music-data.js",
+            url: "displayTop10Songs",
             success: function (data) {
                 self.musicData = data;
                 self.initTeyeWrap(data);
@@ -141,33 +147,29 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             },
             dataType: "json"
         });
-        
+
         this.handleVol();
-        
+
         this.makeLrc();
-        
+
         new dd.Draggable({
-            'node':'.handler',
+            'node': '.handler',
         });
         new dd.Draggable({
-            'node':'.vol-handler'
+            'node': '.vol-handler'
         });
-        dd.DDM.on('drag', function(ev){
+        dd.DDM.on('drag', function (ev) {
             var node = $(ev.drag.userConfig.node);
-            if(node.hasClass('handler'))
-                node.css('left', ev.pageX-15);
-            if(node.hasClass('vol-handler')){
+            if (node.hasClass('handler'))
+                node.css('left', ev.pageX - 15);
+            if (node.hasClass('vol-handler')) {
                 var posTop = ev.pageY - node.parent().offset().top - 5;
-                if(posTop < 0)
+                if (posTop < 0)
                     posTop = 0;
-                if(posTop > 100)
+                if (posTop > 100)
                     posTop = 100;
                 node.css('top', posTop);
             }
-        });
-        
-        $(document).delegate('click', '.download', function(ev){
-            
         });
     };
 
@@ -260,44 +262,44 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             volBar = $('.volBar'),
             barWrap = $('.barWrap'),
             volHandler = $('.vol-handler');
-        
-        volIcon.on('mouseenter', function (ev){
+
+        volIcon.on('mouseenter', function (ev) {
             barWrap.css('transform', 'rotateX(0)');
             ev.halt();
         });
-        volEl.on('mouseleave', function (ev){
+        volEl.on('mouseleave', function (ev) {
             barWrap.css('transform', 'rotateX(90deg)');
             ev.halt();
         });
-        
-        volIcon.on('click', function(ev){
+
+        volIcon.on('click', function (ev) {
             $(this).toggleClass('mute');
-            if(self.audio.volume === 0){
+            if (self.audio.volume === 0) {
                 self.audio.volume = self.volume;
-                volHandler.css('top', (100-self.volume*100-1)+'%');
-            }else{
+                volHandler.css('top', (100 - self.volume * 100 - 1) + '%');
+            } else {
                 self.audio.volume = 0;
                 volHandler.css('top', '99%');
-                
+
             }
             ev.halt();
         });
-        
-        volBar.on('click', function(ev){
-            volHandler.css('top', (ev.pageY - volBar.offset().top - 5)+'px');
-            var v = (volHandler.offset().top - volBar.offset().top)/100;
-            if(v < 0)
+
+        volBar.on('click', function (ev) {
+            volHandler.css('top', (ev.pageY - volBar.offset().top - 5) + 'px');
+            var v = (volHandler.offset().top - volBar.offset().top) / 100;
+            if (v < 0)
                 v = 0;
-            else if(v > 1)
+            else if (v > 1)
                 v = 1;
-            self.audio.volume = self.volume = 1-v;
-            if(self.audio.volume === 0)
+            self.audio.volume = self.volume = 1 - v;
+            if (self.audio.volume === 0)
                 volIcon.addClass('mute');
             else
                 volIcon.removeClass('mute');
         });
     }
-    
+
     Player.prototype.getPlaylist = function () {
         var list = [];
         list = JSON.parse(localStorage.getItem('playlist'));
@@ -324,16 +326,15 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         listEl.delegate('click', '.m-operate .m-delete', function (ev) {
             var el = $(ev.currentTarget).parent().parent(),
                 index = el.index();
-            console.log(index);
             self.mList.splice(index, 1);
             localStorage.setItem('playlist', JSON.stringify(self.mList));
             el.remove();
             if (index < self.currentPlay) {
                 self.currentPlay--;
             } else if (index === self.currentPlay) {
-                console.log(index);
                 self.playOther(index);
-                self.audio.pause();
+            }
+            if (self.mList.length === 0) {
                 self.animCD.pause();
                 $('.toggle').css('background-position', '-34px -44px');
             }
@@ -373,7 +374,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         $(this.audio).on('timeupdate', this.handleTimeUpdate(self));
         $(this.audio).on('progress', function () {});
         this.audio.play();
-        if($('.volIcon').hasClass('mute')) this.audio.volume = 0;
+        if ($('.volIcon').hasClass('mute')) this.audio.volume = 0;
 
         $($('.p-info a')[0]).text(this.mList[this.currentPlay].title);
         $($('.p-info a')[1]).text(this.mList[this.currentPlay].artist);
@@ -386,12 +387,12 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
 
         this.animImg.css('background-image', 'url("' + this.mList[this.currentPlay].img + '")');
         this.makeLrc();
-        
+
         var idData = this.mList[this.currentPlay].id;
         new IO({
             type: "post",
-            url: 'lyric-datas.js',
-            //            url: 'updateListeningHistory',
+            //            url: 'lyric-datas.js',
+            url: 'sendListeningHistory',
             data: {
                 id: idData,
                 type: 'listen'
@@ -415,6 +416,8 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         listStr = tempList.join('\n');
         container.append(listStr);
 
+        if (this.typeListenTimes >= 4)
+            return;
         container.delegate('click', '.t-list .add-plist', function (ev) {
             var t = $(ev.currentTarget);
             self.addToPlaylist(listType, t.parent().parent().index());
@@ -436,19 +439,20 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
             ev.halt();
         });
+        this.typeListenTimes++;
     }
 
-    Player.prototype.logDownload = function(index, type){
+    Player.prototype.logDownload = function (index, type) {
         var id;
-        if(arguments.length === 2){
+        if (arguments.length === 2) {
             id = this.musicData[type][index].id;
-        }else if(arguments.length === 1){
+        } else if (arguments.length === 1) {
             id = this.mList[index].id;
         }
         new IO({
             type: "post",
-            url: 'lyric-datas.js',
-            //            url: 'updateListeningHistory',
+            //            url: 'lyric-datas.js',
+            url: 'updateListeningHistory',
             data: {
                 id: id,
                 type: 'download'
@@ -458,7 +462,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             }
         });
     }
-    
+
     Player.prototype.initTeyeWrap = function (data) {
         var self = this,
             nav = $('.type-nav'),
@@ -541,41 +545,125 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             }
         });
 
-        $('.t-chinese .more').on('click', function () {
+        $('.t-chinese .more').on('click', this.handlerMore('chinese'));
+        $('.t-western .more').on('click', this.handlerMore('western'));
+        $('.t-jk .more').on('click', this.handlerMore('jk'));
+        $('.t-rank .more').on('click', this.handlerMore('rank'));
+        $('.t-section').delegate('click', '.prePage', function (ev) {
+            var parentEl = $(ev.currentTarget).parent();
+            var parentType = parentEl.hasClass('t-chinese') ? 'chinese' :
+                parentEl.hasClass('t-western') ? 'western' :
+                parentEl.hasClass('t-jk') ? 'jk' :
+                parentEl.hasClass('t-rank') ? 'rank' : undefined;
+            if (parentType === undefined)
+                return;
+            if (--self.pageIndex[parentType] === 0) {
+                self.pageIndex[parentType] = 1;
+                return;
+            }
+            getOtherPage(parentType, self.pageIndex[parentType]);
+        });
+        $('.t-section').delegate('click', '.nextPage', function (ev) {
+
+            var parentEl = $(ev.currentTarget).parent();
+            var parentType = parentEl.hasClass('t-chinese') ? 'chinese' :
+                parentEl.hasClass('t-western') ? 'western' :
+                parentEl.hasClass('t-jk') ? 'jk' :
+                parentEl.hasClass('t-rank') ? 'rank' : undefined;
+
+            if (parentType === undefined)
+                return;
+            var nextPage = $('.t-' + parentType + ' .nextPage');
+            if (nextPage.hasClass('disable')) {
+                return;
+            }
+            getOtherPage(parentType, ++self.pageIndex[parentType]);
+        });
+
+        function getOtherPage(listType, index) {
             new IO({
                 type: "get",
-                url: 'get-more.js',
-                //                url: 'displayMoreSongs',
+                //                url: 'get-more.js',
+                url: 'displayMoreSongs',
                 data: {
-                    type: "chinese",
-                    index: "1"
+                    type: listType,
+                    index: index
                 },
                 success: function (data) {
-                    $('.t-chinese .t-list li').remove();
-                    self.musicData.chinese = data;
-                    self.mkTypeList('chinese');
+                    var prePage = $('.t-' + listType + ' .prePage'),
+                        nextPage = $('.t-' + listType + ' .nextPage');
+                    $('.t-' + listType + ' .t-list li').remove();
+                    self.musicData[listType] = data;
+                    self.mkTypeList(listType);
+                    prePage.css('display', 'block');
+                    if (index === 1)
+                        prePage.addClass('disable');
+                    else if (index > 1)
+                        prePage.removeClass('disable');
+                    if (self.musicData[listType].length < 15) {
+                        nextPage.css('display', 'block').addClass('disable');
+                    } else {
+                        nextPage.css('display', 'block').removeClass('disable');
+                    }
+
                 },
                 error: function (m, io) {
                     console.log(m);
                 },
                 dataType: "json"
             });
-        });
-
+        }
     }
+
+    Player.prototype.handlerMore = function (listType) {
+        var self = this;
+        this.pageIndex[listType] = 1;
+
+        return function () {
+            new IO({
+                type: "get",
+                //                url: 'get-more.js',
+                url: 'displayMoreSongs',
+                data: {
+                    type: listType,
+                    index: "1"
+                },
+                success: function (data) {
+                    $('.t-' + listType + ' .t-list li').remove();
+                    self.musicData[listType] = data;
+                    self.mkTypeList(listType);
+                    $('.t-' + listType + ' .prePage').css('display', 'block').addClass('disable');
+                    if (self.musicData[listType].length < 15) {
+                        $('.t-' + listType + ' .nextPage').css('display', 'block').addClass('disable');
+                    } else {
+                        $('.t-' + listType + ' .nextPage').css('display', 'block');
+                    }
+
+                },
+                error: function (m, io) {
+                    console.log(m);
+                },
+                dataType: "json"
+            });
+        }
+    };
 
     Player.prototype.makeLrc = function () {
         var self = this;
         var idData = this.mList[this.currentPlay].id;
         new IO({
             type: "get",
-            url: 'lyric-datas.js',
-            //            url: 'getLyric',
+            //            url: 'lyric-datas.js',
+            url: 'getLyric',
             data: {
                 id: idData
             },
             dataType: "json",
             success: function (data) {
+                if (data.length === 0) {
+                    $('.lyric').css('display', 'none');
+                    $('.default-info').css('display', 'block');
+                }
                 var elStr = '';
                 self.lrc = data;
                 for (var i = 0; i < self.lrc.length; i++) {
@@ -620,20 +708,38 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         });
         searchInput.on('valuechange', function (ev) {
             var key = ev.newVal;
+            $('.search-hint ul li').remove();
+            if (key === '')
+                return;
             new IO({
                 type: "get",
-                url: "fuzzy.js",
-                //                url: "fuzzySearch",
+                //                url: "fuzzy.js",
+                url: "fuzzySearch",
                 data: {
                     "searchKey": key
                 },
                 success: function (data) {
-                    var mulStr = '';
-                    if(data["歌曲"].length === 0) return;
-                    for( var i = 0; i < data["歌曲"].length; i++)
-                        mulStr += '<li>'+data["歌曲"][i].song_name+'</li>';
-                    console.log(mulStr);
-                    $('.search-hint ul li').remove();
+                    var mulStr = '',
+                        resultCount = 0;
+                    if (data["歌曲"].length === 0 && data["歌手"].length === 0 && data["专辑"].length === 0) return;
+                    for (var i = 0; i < data["歌曲"].length; i++) {
+                        if (resultCount >= 5)
+                            break;
+                        mulStr += '<li><span class = "s-info">' + data["歌曲"][i].songName + '</span><span class = "s-type">歌曲</span></li>';
+                        resultCount++;
+                    }
+                    for (var i = 0; i < data["歌手"].length; i++) {
+                        if (resultCount >= 5)
+                            break;
+                        mulStr += '<li><span class = "s-info">' + data["歌手"][i].singerName + '</span><span class = "s-type">歌手</span></li>';
+                        resultCount++;
+                    }
+                    for (var i = 0; i < data["专辑"].length; i++) {
+                        if (resultCount >= 5)
+                            break;
+                        mulStr += '<li><span class = "s-info">' + data["专辑"][i].albumName + '</span><span class = "s-type">专辑</span></li>';
+                        resultCount++;
+                    }
                     $('.search-hint ul').append(mulStr);
                     $('.search-hint').css('visibility', 'visible');
                 },
@@ -643,14 +749,19 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 dataType: "json"
             });
         });
-
+        $('.search-hint').delegate('click', '.search-hint ul li', function(ev){
+                $('.search input').val($(ev.currentTarget).one('.s-info').text());
+                searchKeyWord();
+                ev.halt();
+        });
         function searchKeyWord() {
             var key = searchInput.val();
-
+            if (key === '')
+                return;
             new IO({
                 type: "get",
-                url: "get-more.js",
-                //                url: "accurateSearch",
+                //                url: "get-more.js",
+                url: "accurateSearch",
                 data: {
                     "searchKey": key
                 },
@@ -672,7 +783,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 dataType: "json"
             });
         }
-
+        
         $('.search-result>ul').delegate('click', '.search-result .add-plist', function (ev) {
             var t = $(ev.currentTarget);
 
@@ -697,9 +808,35 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         });
 
         searchInput.on('keydown', function (ev) {
-            if (ev.keyCode === 13) {
+            var hintItem = $('.search-hint ul li');
+            switch (ev.keyCode) {
+            case 13:
+                /*enter*/
+                if($('.search-hint .selected').length !== 0)
+                    $('.search input').val($(hintItem[self.hintIndex]).one('.s-info').text());
                 searchKeyWord();
                 ev.halt();
+                break;
+            case 38:
+                /*arrow up*/
+                ev.halt();
+                if (hintItem.length === 0)
+                    return;
+                $(hintItem[self.hintIndex]).removeClass('selected');
+                if (--self.hintIndex < 0)
+                    self.hintIndex = hintItem.length - 1;
+                $(hintItem[self.hintIndex]).addClass('selected');
+                break;
+            case 40:
+                /*arrow down*/
+                ev.halt();
+                if (hintItem.length === 0)
+                    return;
+                $(hintItem[self.hintIndex]).removeClass('selected');
+                if (++self.hintIndex >= hintItem.length)
+                    self.hintIndex = 0;
+                $(hintItem[self.hintIndex]).addClass('selected');
+                break;
             }
         });
         searchBtn.on('click', searchKeyWord);
