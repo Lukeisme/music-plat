@@ -45,6 +45,7 @@ a {
     top: -120px;
     background-color: transparent;
     margin: 0 auto;
+    z-index: 100;
 }
 .p-panel .otherBtn {
     position: absolute;
@@ -70,7 +71,7 @@ a {
     background-image: url("../resource/img/player.png");
     /*    background-position: -264px -3px;*/
     background-position: -34px -44px;
-    z-index: 50;
+    z-index: 110;
 }
 .player .toggle:hover {
     opacity: 0.9;
@@ -206,7 +207,6 @@ a {
     background-position: -6px 40px;
     background-image: url(../resource/img/player.png);
 }
-
 .music-list,
 .type-wrap {
     font-family: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
@@ -446,22 +446,26 @@ a {
 }
 .detail-info {
     position: relative;
-    top: -800px;
-    height: 300px;
-    width: 660px;
+    top: 0px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
     padding: 20px;
-    margin: 0 auto;
     overflow: auto;
     background-color: #666;
-    z-index: 190;
+    z-index: 0;
     -webkit-transform-origin: 0 0;
     -moz-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     -o-transform-origin: 0 0;
     transform-origin: 0 0;
-    -webkit-transition: transform 0.2s ease-out;
-    -o-transition: transform 0.2s ease-out;
-    transition: transform 0.2s ease-out;
+    -webkit-transform: rotateX(90deg);
+    -ms-transform: rotateX(90deg);
+    -o-transform: rotateX(90deg);
+    transform: rotateX(90deg);
+    -webkit-transition: transform 1s cubic-bezier(.67,0,.42,1.46);
+    -o-transition: transform 1s cubic-bezier(.67,0,.42,1.46);
+    transition: transform 1s cubic-bezier(.67,0,.42,1.46);
 }
 .search-result ul {
     width: 500px;
@@ -484,6 +488,7 @@ a {
 }
 .lyric {
     overflow: hidden;
+    font-family: 'Microsoft YaHei';
     font-size: 15px;
     line-height: 15px;
     height: 55px;
@@ -527,8 +532,7 @@ a {
     visibility: hidden;
     overflow: hidden;
 }
-
-.search-hint .s-type{
+.search-hint .s-type {
     position: absolute;
     right: 0;
 }
@@ -616,15 +620,15 @@ a {
     border-radius: 5px;
 }
 .prePage:hover,
-.nextPage:hover{
+.nextPage:hover {
     box-shadow: 0 0 5px #FFF;
 }
 .prePage.disable,
-.nextPage.disable{
+.nextPage.disable {
     display: none;
 }
 .prePage.disable:hover,
-.nextPage.disable:hover{
+.nextPage.disable:hover {
     background: #666;
     box-shadow: 0 0 0 #fff;
 }
@@ -633,4 +637,67 @@ a {
 }
 .nextPage {
     right: 10px;
+}
+.detail-wrap {
+    position: relative;
+    top: -450px;
+    height: 300px;
+    width: 660px;
+    margin: 0 auto;
+    -webkit-perspective: 1000px;
+    -moz-perspective: 1000px;
+    -ms-perspective: 1000px;
+    perspective: 1000px;
+}
+.fade-in{
+    -webkit-animation: fadein 0.5s;
+    animation: fadein 0.5s;
+}
+.fade-in2{
+    -webkit-animation: fade 0.5s;
+    animation: fade 0.5s;
+}
+@-webkit-keyframes fadein {
+    from {
+        opacity: 0;
+        margin-left: 30px;
+    }
+    to {
+        opacity: 1;
+        margin-left: 0;
+    }
+}
+
+/* Standard syntax */
+@keyframes fadein {
+    from {
+        opacity: 0;
+        left: 30px;
+    }
+    to {
+        opacity: 1;
+        left: 0;
+    }
+}
+@-webkit-keyframes fade {
+    from {
+        opacity: 0;
+        margin-left: 30px;
+    }
+    to {
+        opacity: 1;
+        margin-left: 0;
+    }
+}
+
+/* Standard syntax */
+@keyframes fade {
+    from {
+        opacity: 0;
+        left: 30px;
+    }
+    to {
+        opacity: 1;
+        left: 0;
+    }
 }

@@ -436,7 +436,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
         container.delegate('click', '.t-singer', function (ev) {
             $('.search-result').css('display', 'none');
             $('.text-body').css('display', 'block');
-            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            $('.detail-info').css('transform', 'rotateX(0)');
             ev.halt();
         });
         this.typeListenTimes++;
@@ -595,6 +595,14 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     $('.t-' + listType + ' .t-list li').remove();
                     self.musicData[listType] = data;
                     self.mkTypeList(listType);
+                    if($('.t-' + listType + ' .t-list').hasClass('fade-in')){
+                        $('.t-' + listType + ' .t-list').removeClass('fade-in');
+                        $('.t-' + listType + ' .t-list').addClass('fade-in2');
+                    }else{
+                        $('.t-' + listType + ' .t-list').removeClass('fade-in2');
+                        $('.t-' + listType + ' .t-list').addClass('fade-in');
+                    }
+                    console.log($('.t-' + listType + ' .t-list'));
                     prePage.css('display', 'block');
                     if (index === 1)
                         prePage.addClass('disable');
@@ -638,7 +646,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     } else {
                         $('.t-' + listType + ' .nextPage').css('display', 'block');
                     }
-
+                    $('.t-' + listType + ' .t-list').addClass('fade-in');
                 },
                 error: function (m, io) {
                     console.log(m);
@@ -776,7 +784,9 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     searchResult = data;
                     textBody.css('display', 'none');
                     $('.search-result').css('display', 'block');
-                    $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+                    $('.detail-info').css({'transform': 'rotateX(0)',
+                                          'z-index': 200});
+                    $('.p-panel').css('z-index', 0);
                 },
                 error: function (m, io) {
                     console.log(m);
@@ -804,7 +814,7 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
             ev.halt();
         });
         $('.search-result>ul').delegate('click', '.t-singer', function (ev) {
-            $('.detail-info').css('transform', 'translate3D(0, 340px, 0)');
+            $('.detail-info').css('transform', 'rotateX(90deg)');
             ev.halt();
         });
 
@@ -846,7 +856,9 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
     Player.prototype.handleDetail = function () {
         var mainEl = $('.detail-info');
         $('.close').on('click', function () {
-            mainEl.css('transform', 'translate3D(0, 0, 0)');
+            mainEl.css({'transform': 'rotateX(90deg)',
+                       'z-index': 0});
+            $('.p-panel').css('z-index', 100);
         });
     };
 
