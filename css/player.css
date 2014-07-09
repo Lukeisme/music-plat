@@ -539,6 +539,9 @@ a {
 .search-hint .selected {
     background-color: black;
 }
+.search-hint ul li{
+    cursor: pointer;
+}
 .text-body {
     margin: 30px;
 }
@@ -625,12 +628,11 @@ a {
 }
 .prePage.disable,
 .nextPage.disable {
-    display: none;
+    visibility: hidden;
 }
 .prePage.disable:hover,
 .nextPage.disable:hover {
-    background: #666;
-    box-shadow: 0 0 0 #fff;
+
 }
 .prePage {
     left: 10px;

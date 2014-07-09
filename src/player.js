@@ -595,14 +595,13 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     $('.t-' + listType + ' .t-list li').remove();
                     self.musicData[listType] = data;
                     self.mkTypeList(listType);
-                    if($('.t-' + listType + ' .t-list').hasClass('fade-in')){
+                    if ($('.t-' + listType + ' .t-list').hasClass('fade-in')) {
                         $('.t-' + listType + ' .t-list').removeClass('fade-in');
                         $('.t-' + listType + ' .t-list').addClass('fade-in2');
-                    }else{
+                    } else {
                         $('.t-' + listType + ' .t-list').removeClass('fade-in2');
                         $('.t-' + listType + ' .t-list').addClass('fade-in');
                     }
-                    console.log($('.t-' + listType + ' .t-list'));
                     prePage.css('display', 'block');
                     if (index === 1)
                         prePage.addClass('disable');
@@ -733,19 +732,19 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     for (var i = 0; i < data["歌曲"].length; i++) {
                         if (resultCount >= 5)
                             break;
-                        mulStr += '<li><span class = "s-info">' + data["歌曲"][i].songName + '</span><span class = "s-type">歌曲</span></li>';
+                        mulStr += '<li class = "hint-item"><span class = "s-info">' + data["歌曲"][i].songName + '</span><span class = "s-type">歌曲</span></li>';
                         resultCount++;
                     }
                     for (var i = 0; i < data["歌手"].length; i++) {
                         if (resultCount >= 5)
                             break;
-                        mulStr += '<li><span class = "s-info">' + data["歌手"][i].singerName + '</span><span class = "s-type">歌手</span></li>';
+                        mulStr += '<li class = "hint-item"><span class = "s-info">' + data["歌手"][i].singerName + '</span><span class = "s-type">歌手</span></li>';
                         resultCount++;
                     }
                     for (var i = 0; i < data["专辑"].length; i++) {
                         if (resultCount >= 5)
                             break;
-                        mulStr += '<li><span class = "s-info">' + data["专辑"][i].albumName + '</span><span class = "s-type">专辑</span></li>';
+                        mulStr += '<li class = "hint-item"><span class = "s-info">' + data["专辑"][i].albumName + '</span><span class = "s-type">专辑</span></li>';
                         resultCount++;
                     }
                     $('.search-hint ul').append(mulStr);
@@ -757,11 +756,13 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                 dataType: "json"
             });
         });
-        $('.search-hint').delegate('click', '.search-hint ul li', function (ev) {
+        /*console.log($('.search-hint'));
+        $('.wrapper').delegate('click', '.hint-item', function (ev) {
+            console.log('click hint');
             $('.search input').val($(ev.currentTarget).one('.s-info').text());
             searchKeyWord();
             ev.halt();
-        });
+        });*/
 
         function searchKeyWord() {
             var key = searchInput.val();
@@ -784,8 +785,10 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
                     searchResult = data;
                     textBody.css('display', 'none');
                     $('.search-result').css('display', 'block');
-                    $('.detail-info').css({'transform': 'rotateX(0)',
-                                          'z-index': 200});
+                    $('.detail-info').css({
+                        'transform': 'rotateX(0)',
+                        'z-index': 200
+                    });
                     $('.p-panel').css('z-index', 0);
                 },
                 error: function (m, io) {
@@ -856,8 +859,10 @@ KISSY.add(function (S, Node, Anim, XTemplate, IO, dd, ListTpl, TypeTpl) {
     Player.prototype.handleDetail = function () {
         var mainEl = $('.detail-info');
         $('.close').on('click', function () {
-            mainEl.css({'transform': 'rotateX(90deg)',
-                       'z-index': 0});
+            mainEl.css({
+                'transform': 'rotateX(90deg)',
+                'z-index': 0
+            });
             $('.p-panel').css('z-index', 100);
         });
     };
